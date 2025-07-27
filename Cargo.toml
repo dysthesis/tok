@@ -1,0 +1,30 @@
+[package]
+name = "tok"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "libtok"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "tok"
+path = "src/main.rs"
+
+[dependencies]
+nlprule = { version = "0.6.4", default-features = false, features = [ "regex-fancy" ] }
+pulldown-cmark = { version = "0.13.0", default-features = false }
+
+[dev-dependencies]
+proptest = "1.7.0"
+proptest-derive = "0.6.0"
+
+[profile.release]
+strip = "debuginfo"
+lto = true
+opt-level = "z"
+codegen-units = 1
+panic = "abort"
+
+[build-dependencies]
+nlprule-build = "0.6.4"
