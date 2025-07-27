@@ -4,26 +4,36 @@ mod lemmatise;
 mod markdown;
 mod tokeniser;
 
-pub struct NonEmpty<'a>(&'a str);
+use std::{borrow::Cow, fmt};
 
-impl<'a> NonEmpty<'a> {
-    pub fn new(input: &'a str) -> Option<NonEmpty<'a>> {
-        if input.is_empty() {
-            None
-        } else {
-            Some(NonEmpty(input))
-        }
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct NonEmpty<S: AsRef<str>>(S);
+
+impl<S: AsRef<str>> NonEmpty<S> {
+    /// Constructs a new `NonEmpty`, returning `None` if the string is empty.
+    pub fn new(input: S) -> Option<Self> {
+        (!input.as_ref().is_empty()).then(|| Self(input))
     }
-}
 
-impl<'a> Display for NonEmpty<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+    /// Returns the string slice view of the underlying data.
+    pub fn as_str(&self) -> &str {
+        self.0.as_ref()
     }
-}
 
-impl<'a> NonEmpty<'a> {
-    pub fn as_str(&self) -> &'a str {
+    /// Consumes `self`, yielding the inner storage.
+    pub fn into_inner(self) -> S {
         self.0
+    }
+}
+
+impl<S: AsRef<str>> fmt::Display for NonEmpty<S> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.as_ref())
+    }
+}
+
+impl<S: AsRef<str>> AsRef<str> for NonEmpty<S> {
+    fn as_ref(&self) -> &str {
+        self.0.as_ref()
     }
 }
